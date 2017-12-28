@@ -10,8 +10,9 @@
  */
 
 const Alexa = require('alexa-sdk');
+const request = require('request');
 const config = require('./config');
-const Fuse = require('fuse.js');
+const STATIONS = require('./stationdata');
 
 const APP_ID = config.aws.skillId;
 
@@ -35,6 +36,21 @@ const TIDE_RISING = " and rising";
 const TIDE_FALLING = " and falling";
 
 /**
+ * fetchCurrentTide
+ * @param id
+ * @param water_level_endpoint
+ * @returns water_level
+ * 
+ * Fetches water level for the station through its designated endpoint
+ */
+
+ const fetchCurrentTide = function(id, water_level_endpoint, water_level_callback) {
+  let url = water_level_endpoint(id, Date.now());
+  request.get(url, water_level_callback);
+ }
+
+
+/**
  * Register and execute handler
  */
 
@@ -48,41 +64,38 @@ exports.handler = function(event, context, callback) {
 };
 
 const handlers = {
-  'LaunchRequest': function() {
+  'LaunchRequest': function () {
     console.info("LaunchRequest Called");
     this.emit('GetTideIntent');
   },
-  "AboutIntent": function () {
-    this.emit(':tellWithCard', C4HR_MESSAGE, SKILL_NAME, C4HR_MESSAGE);
+  'AboutIntent': function () {
+    this.response.cardRenderer(SKILL_NAME, C4HR_MESSAGE);
+    this.response.speak(C4HR_MESSAGE);
+    this.emit(':responseReady');
   },
-  'AMAZON.HelpIntent': function() {
+  'AMAZON.HelpIntent': function () {
     this.emit(':ask', HELP_MESSAGE, HELP_REPROMPT);
   },
-  'AMAZON.CancelIntent': function() {
+  'AMAZON.CancelIntent': function () {
     this.emit(':tell', STOP_MESSAGE);
   },
-  'AMAZON.StopIntent': function() {
+  'AMAZON.StopIntent': function () {
     this.emit(':tell', STOP_MESSAGE);
   },
-  'Unhandled': function() {
+  'Unhandled': function () {
     this.emit(':ask', HELP_MESSAGE, HELP_MESSAGE);
   },
-  'GetTideIntent': function() {
-  
+  'GetTideIntent': function () {
+    
     /**
      *
      *  Capture the Station Name, Identify the Station ID, and retrieve the Tide
      */
-
-    const intent = this;
-  
-    const fuse_options = {
-      keys: ['name'],
-      id: 'id'
-    };
     
-    let fuse = new Fuse(STATTIONS, fuse_options);
-  
-    let station_id = fuse.search(this.event.request.intent.slots.Location.value); // Use fuse library to fuzzy search for the user input
+    const intent = this;
+    let station = STATIONS.find(station => station.name === this.event.request.intent.slots.Location.value);
+    
+    fetchCurrentTide( station.id, station.water_level_endpoint, station.water_level_callback)
 
+  }
 }
