@@ -15,7 +15,8 @@
   "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "alexa-sdk": "^1.0.24",
-    "fuse.js": "^3.2.0"
+    "fuse.js": "^3.2.0",
+    "request": "^2.83.0"
   },
   "repository": {
     "type": "git",
