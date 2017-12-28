@@ -22,6 +22,7 @@
     "url": ""
   },
   "devDependencies": {
+    "jshint": "^2.9.5",
     "serverless-mocha-plugin": "^1.7.0"
   }
 }
