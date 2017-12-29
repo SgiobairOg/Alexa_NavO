@@ -39,15 +39,17 @@ const TIDE_FALLING = " and falling";
  * fetchCurrentTide
  * @param id
  * @param water_level_endpoint
- * @returns water_level
+ * @returns water level report string
  * 
  * Fetches water level for the station through its designated endpoint
  */
 
- const fetchCurrentTide = function(id, water_level_endpoint, water_level_callback) {
+ const fetchCurrentTide = function(id, name, water_level_endpoint, water_level_callback) {
   let url = water_level_endpoint(id, Date.now());
-  request.get(url, water_level_callback);
- }
+  let water_level_value = request.get(url, water_level_callback);
+
+  return `${GET_TIDE_MESSAGE} ${LOCATION_CONNECTOR} ${name} ${WATERLEVEL_CONNECTOR} ${water_level_value}`;
+ };
 
 
 /**
@@ -56,7 +58,11 @@ const TIDE_FALLING = " and falling";
 
 exports.handler = function(event, context, callback) {
   const alexa = Alexa.handler(event, context);
-  alexa.appId = APP_ID;
+  
+  if ('undefined' === typeof process.env.DEBUG) {
+    alexa.appId = APP_ID;
+  }
+  
   alexa.registerHandlers(handlers);
   console.log(`Beginning execution for skill with APP_ID=${alexa.appId}`);
   alexa.execute();
@@ -95,7 +101,7 @@ const handlers = {
     const intent = this;
     let station = STATIONS.find(station => station.name === this.event.request.intent.slots.Location.value);
     
-    fetchCurrentTide( station.id, station.water_level_endpoint, station.water_level_callback)
+    fetchCurrentTide( station.id, station.name, station.water_level_endpoint, station.water_level_callback)
 
   }
 }
