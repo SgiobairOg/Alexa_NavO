@@ -48,7 +48,7 @@ const TIDE_FALLING = " and falling";
   let url = water_level_endpoint(id, Date.now());
   let water_level_value = request.get(url, water_level_callback);
 
-  return `${GET_TIDE_MESSAGE} ${LOCATION_CONNECTOR} ${name} ${WATERLEVEL_CONNECTOR} ${water_level_value}`;
+  return `${GET_TIDE_MESSAGE}${LOCATION_CONNECTOR}${name}${WATERLEVEL_CONNECTOR} ${water_level_value}`;
  };
 
 
@@ -58,10 +58,12 @@ const TIDE_FALLING = " and falling";
 
 exports.handler = function(event, context, callback) {
   const alexa = Alexa.handler(event, context);
-  
+
   if ('undefined' === typeof process.env.DEBUG) {
     alexa.appId = APP_ID;
   }
+
+  if(!alexa.appId) { alexa.appId = alexa.APP_ID; }
   
   alexa.registerHandlers(handlers);
   console.log(`Beginning execution for skill with APP_ID=${alexa.appId}`);
@@ -98,10 +100,22 @@ const handlers = {
      *  Capture the Station Name, Identify the Station ID, and retrieve the Tide
      */
     
-    const intent = this;
-    let station = STATIONS.find(station => station.name === this.event.request.intent.slots.Location.value);
+    console.info("GetTideIntent Called");
     
-    fetchCurrentTide( station.id, station.name, station.water_level_endpoint, station.water_level_callback)
+    const intent = this;
 
+    //let station = this.event.request.intent.slots.Location.value
+    
+    //console.log("Station test: ", STATIONS[0]);
+    let location = this.event.request.intent.slots.Location.value;
+
+    let station = STATIONS.find( curr_station => curr_station.name.toUpperCase() === location.toUpperCase() );
+
+    console.log("Value: ", fetchCurrentTide( station.id, station.name, station.water_level_endpoint, station.water_level_callback)
+  );
+    
+    this.response.cardRenderer(SKILL_NAME, `User asked for tides at ${station.name}`);
+    this.response.speak(`User asked for tides at ${station.name}`);
+    this.emit(':responseReady');
   }
 }

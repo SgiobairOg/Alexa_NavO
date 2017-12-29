@@ -5,10 +5,9 @@
 
 const NOAA_COOPS_WL_ENDPOINT = (id, end_date) => {
   if (!id) { return null }
-  let time = new Date;
-  end_date = end_date || time.toISOString().replace(/-/g, '').replace(/T/,' ').substr(0, 15);
-  let start_date = time.setMinutes(time.getMinutes() - 12).toISOString().replace(/-/g, '').replace(/T/,' ').substr(0, 15);
-  return `https://tidesandcurrents.noaa.gov/api/datagetter?begin_date=${start_date}&end_date=${end_date}&station=${id}&product=water_level&datum=mllw&units=english&time_zone=gmt&application=code4hr&format=json`
+  let date = new Date();
+  let date_string = `${date.getFullYear()}${date.getMonth()}${date.getDate()}`;
+  return `https://tidesandcurrents.noaa.gov/api/datagetter?date=${date}&station=${id}&product=water_level&datum=mllw&units=english&time_zone=gmt&application=code4hr&format=json`
 };
 
 const NOAA_WL_CALLBACK = (data) => {
