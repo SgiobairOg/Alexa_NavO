@@ -54,7 +54,7 @@ const USGS_WL_CALLBACK = (data, skillthis, name, VALUES) => {
 
   console.info("IN USGS callback, data: ", data);
 
-  if( typeof data.value.timeseries[0] !== "undefined" && data.value.timeseries[0]) {
+  if( typeof data.value.timeSeries[0] !== "undefined" && data.value.timeSeries[0]) {
     let unit = data.value.timeSeries[0].variable.unit.unitCode;
     let value = data.value.timeSeries[0].values[0].value[0].value;
 
