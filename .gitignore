@@ -55,3 +55,7 @@ src/config.js
 
 # jshint configuration
 .jshintrc
+
+# Webstorm
+.idea 
+.idea/
