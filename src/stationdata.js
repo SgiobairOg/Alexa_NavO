@@ -16,20 +16,24 @@ const NOAA_WL_CALLBACK = (data, skillthis, name, VALUES) => {
   } catch (err) {
     console.error("In NOAA callback: ", err);
     skillthis.emit("StationErrorIntent");
+    return;
   }
 
-  console.log("In NOAA callback, data: ", data);
+  console.info("In NOAA callback, data: ", data);
+  if( typeof data.data['0'] !== "undefined" && data.data['0']) {
+    let value = data.data['0'].v;
 
-  let value = data.data['0'].v;
-
-  //return `${value}ft`;
-
-  skillthis.response.cardRenderer(
-    VALUES.SKILL_NAME,
-    `${VALUES.GET_TIDE_MESSAGE}${VALUES.LOCATION_CONNECTOR}${name}${VALUES.WATERLEVEL_CONNECTOR} ${value}ft`
-  );
-  skillthis.response.speak(`${VALUES.GET_TIDE_MESSAGE}${VALUES.LOCATION_CONNECTOR}${name}${VALUES.WATERLEVEL_CONNECTOR} ${value}ft`);
-  skillthis.emit(":responseReady");
+    skillthis.response.cardRenderer(
+      VALUES.SKILL_NAME,
+      `${VALUES.GET_TIDE_MESSAGE}${VALUES.LOCATION_CONNECTOR}${name}${VALUES.WATERLEVEL_CONNECTOR} ${value}ft`
+    );
+    skillthis.response.speak(`${VALUES.GET_TIDE_MESSAGE}${VALUES.LOCATION_CONNECTOR}${name}${VALUES.WATERLEVEL_CONNECTOR} ${value}ft`);
+    skillthis.emit(":responseReady");
+    return;
+  } else {
+    skillthis.emit("StationErrorIntent");
+    return;
+  }
 
 };
 
@@ -43,13 +47,14 @@ const USGS_WL_CALLBACK = (data, skillthis, name, VALUES) => {
   try {
     data = JSON.parse(data);
   } catch (err) {
-    console.error("In USGS callback: ", err);
+    console.error("Error In USGS callback: ", err);
     skillthis.emit("StationErrorIntent");
+    return;
   }  
 
-  console.log("IN USGS callback, data: ", data);
+  console.info("IN USGS callback, data: ", data);
 
-  if( typeof data.value.timeseries[0] !== 'undefined' && data.value.timeseries[0]) {
+  if( typeof data.value.timeseries[0] !== "undefined" && data.value.timeseries[0]) {
     let unit = data.value.timeSeries[0].variable.unit.unitCode;
     let value = data.value.timeSeries[0].values[0].value[0].value;
 
@@ -59,8 +64,10 @@ const USGS_WL_CALLBACK = (data, skillthis, name, VALUES) => {
     );
     skillthis.response.speak(`${VALUES.GET_TIDE_MESSAGE}${VALUES.LOCATION_CONNECTOR}${name}${VALUES.WATERLEVEL_CONNECTOR} ${value}${unit}`);
     skillthis.emit(":responseReady");
+    return;
   } else {
     skillthis.emit("StationErrorIntent");
+    return;
   }
 };
 

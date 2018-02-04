@@ -74,8 +74,6 @@ const fetchCurrentTide = function(
   let water_level_value = request(options, (err, res, body) => {
     water_level_callback(body, skillthis, name, VALUES);
   });
-  //console.log("WL Value: ", water_level_value);
-  //return `${GET_TIDE_MESSAGE}${LOCATION_CONNECTOR}${name}${WATERLEVEL_CONNECTOR} ${water_level_value}`;
 };
 
 /**
@@ -96,25 +94,28 @@ exports.handler = function(event, context, callback) {
   alexa.registerHandlers(handlers);
   console.log(`Beginning execution for skill with APP_ID=${alexa.appId}`);
   alexa.execute();
-  console.log(`Ending execution for skill with APP_ID=${alexa.appId}`);
+  //console.log(`Ending execution for skill with APP_ID=${alexa.appId}`);
 };
 
 const handlers = {
   LaunchRequest: function() {
     console.info("LaunchRequest Called");
-    this.emit("GetTideIntent");
+    this.emit("AboutIntent");
   },
   AboutIntent: function() {
+    console.info("AboutIntent Called");
     this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.C4HR_MESSAGE);
     this.response.speak(VALUES.C4HR_MESSAGE);
     this.emit(":responseReady");
   },
   StationNotFoundIntent: function() {
+    console.info("StationNotFoundIntent Called");
     this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.NOT_FOUND);
     this.response.speak(VALUES.NOT_FOUND);
     this.emit(":responseReady");
   },
   StationErrorIntent: function() {
+    console.info("StationErrorIntent Called");
     this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.STATION_ERROR);
     this.response.speak(VALUES.STATION_ERROR);
     this.emit(":responseReady");
@@ -139,12 +140,8 @@ const handlers = {
 
     console.info("GetTideIntent Called");
 
-    //const intent = this;
-
-    //let station = this.event.request.intent.slots.Location.value
-
-    //console.log("Station test: ", STATIONS[0]);
     let location = this.event.request.intent.slots.Location.value;
+
     console.log("Location: ", location);
 
     let options = {
@@ -159,9 +156,8 @@ const handlers = {
     var fuse = new Fuse(STATIONS, options);
     var result = fuse.search(location);
 
-    console.log("Fuse result: ", result[0]);
-
     if (typeof result[0] !== "undefined" && result[0]) {
+      console.log("Fuse result: ", result[0]);
       let station = result[0];
 
       console.log(
