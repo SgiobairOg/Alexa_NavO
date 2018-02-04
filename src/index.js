@@ -28,18 +28,26 @@ const VALUES = {
   GET_TIDE_MESSAGE: "The current tide ",
   LOCATION_CONNECTOR: " at ",
   WATERLEVEL_CONNECTOR: " is: ",
-  HELP_MESSAGE:
-    "You can say 'what is the tide at station name,' where station name is the name of a NOAA Tide Station, you can ask about Code for Hampton Roads, or, you can say 'exit'... What can I help you with?",
-  HELP_REPROMPT: "What can I help you with?",
+  HELP_MESSAGE: {
+    SPEECH:
+      "Nav-O gets you the current water level from more than 10,000 water level sensors in the United States. To get the tide try asking 'what is the tide at,' and give me the name of a NOAA or <say-as interpret-as='spell-out'>USGS</say-as> tide station. You don't have to be exact, I'll take my best guess.",
+    CARD:
+      "Nav-O gets you the current water level from more than 10,000 water level sensors in the United States. To get the tide try asking 'what is the tide at,' and give me the name of a NOAA or USGS tide station. You don't have to be exact, I'll take my best guess."
+  },
+  HELP_REPROMPT: "What tide would you like me to report?",
   C4HR_MESSAGE:
-    "Code for Hampton Roads is a Civic Hacking Organization of volunteers dedicated to using publicly available data to help the Hampton Roads Community. Learn more at www.code4hr.org",
+    "Nav-O was built by Jason Wilson for Code for Hampton Roads as a tool for accessing publicly available tide data. Tide data is sourced fron the National Oceanic and Atmospheric Administration and United States Geological Survey sensors.  Code for Hampton Roads is a Civic Hacking Organization of volunteers dedicated to using publicly available data to help the Hampton Roads Community. Learn more at www.code4hr.org",
   STOP_MESSAGE: "Goodbye!",
   ERROR: "Uh Oh. Looks like something went wrong.",
   TIDE_UNITS_ft: " feet ",
   TIDE_RISING: " and rising",
   TIDE_FALLING: " and falling",
-  NOT_FOUND:
-    "I'm sorry, I couldn't find that station. The station name should be the listed name of a NOAA or USGS tide station.",
+  NOT_FOUND: {
+    SPEECH:
+      "I'm sorry, I couldn't find that station. The station name should be the listed name of a NOAA or <say-as interpret-as='spell-out'>USGS</say-as> tide station.",
+    CARD:
+      "I'm sorry, I couldn't find that station. The station name should be the listed name of a NOAA or USGS tide station."
+  },
   STATION_ERROR:
     "That station appears to be having an issue. I've made a note of the error, please try again later."
 };
@@ -100,18 +108,19 @@ exports.handler = function(event, context, callback) {
 const handlers = {
   LaunchRequest: function() {
     console.info("LaunchRequest Called");
-    this.emit("AboutIntent");
+    this.emit("AMAZON.HelpIntent");
   },
   AboutIntent: function() {
     console.info("AboutIntent Called");
     this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.C4HR_MESSAGE);
     this.response.speak(VALUES.C4HR_MESSAGE);
+    this.response.listen(VALUES.HELP_REPROMPT);
     this.emit(":responseReady");
   },
   StationNotFoundIntent: function() {
     console.info("StationNotFoundIntent Called");
-    this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.NOT_FOUND);
-    this.response.speak(VALUES.NOT_FOUND);
+    this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.NOT_FOUND.CARD);
+    this.response.speak(VALUES.NOT_FOUND.SPEECH);
     this.emit(":responseReady");
   },
   StationErrorIntent: function() {
@@ -121,7 +130,11 @@ const handlers = {
     this.emit(":responseReady");
   },
   "AMAZON.HelpIntent": function() {
-    this.emit(":ask", VALUES.HELP_MESSAGE, VALUES.HELP_REPROMPT);
+    //this.emit(":ask", VALUES.HELP_MESSAGE, VALUES.HELP_REPROMPT);
+    this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.HELP_MESSAGE.CARD);
+    this.response.speak(VALUES.HELP_MESSAGE.SPEECH);
+    this.response.listen(VALUES.HELP_REPROMPT);
+    this.emit(":responseReady");
   },
   "AMAZON.CancelIntent": function() {
     this.emit(":tell", VALUES.STOP_MESSAGE);
@@ -130,7 +143,11 @@ const handlers = {
     this.emit(":tell", VALUES.STOP_MESSAGE);
   },
   Unhandled: function() {
-    this.emit(":ask", VALUES.HELP_MESSAGE, VALUES.HELP_MESSAGE);
+    //this.emit(":ask", VALUES.HELP_MESSAGE, VALUES.HELP_MESSAGE);
+    this.response.cardRenderer(VALUES.SKILL_NAME, VALUES.HELP_MESSAGE.CARD);
+    this.response.speak(VALUES.HELP_MESSAGE.SPEECH);
+    this.response.listen(VALUES.HELP_REPROMPT);
+    this.emit(":responseReady");
   },
   GetTideIntent: function() {
     /**
