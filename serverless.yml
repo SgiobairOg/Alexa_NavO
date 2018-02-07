@@ -20,6 +20,7 @@ service: alexa-nav-o
 provider:
   name: aws
   runtime: nodejs6.10
+  timeout: 15
 
 # you can overwrite defaults here
 #  stage: dev
