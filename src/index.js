@@ -163,7 +163,9 @@ const handlers = {
 
     let options = {
       shouldSort: true,
-      threshold: 0.6,
+      tokenize: true,
+      threshold: 0.7,
+      includeScore: true,
       location: 0,
       distance: 100,
       maxPatternLength: 32,
@@ -175,17 +177,14 @@ const handlers = {
 
     if (typeof result[0] !== "undefined" && result[0]) {
       console.log("Fuse result: ", result[0]);
-      let station = result[0];
+      let station = result[0].item;
 
-      console.log(
-        "Value: ",
-        fetchCurrentTide(
-          station.id,
-          station.name,
-          station.water_level_endpoint,
-          station.water_level_callback,
-          this
-        )
+      fetchCurrentTide(
+        station.id,
+        station.name,
+        station.water_level_endpoint,
+        station.water_level_callback,
+        this
       );
     } else {
       this.emit("StationNotFoundIntent");
